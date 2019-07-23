@@ -52,11 +52,11 @@ Properties of the analysis:
 
 ## Samples
 
-* DYJets alles
+* DYJets all
 * EMB
 * TT
 * ST
-* WJets alles
+* WJets all
 * WW
 * WZ
 * ZZ
@@ -77,7 +77,7 @@ Same selection as for JetFakes ?
 
 ## Uncertainty model
 
-uncollelated across years
+uncorrelated across years
 
 ### Correlated with Z->µµ Region
 
@@ -89,7 +89,7 @@ uncollelated across years
 * ttbar xsec 5.5 %
 * st xsec 5.5 %
   
-### Uncorellated with Z->µµ
+### Uncorrelated with Z->µµ
 
 * W norm 5%
 * jet->tau 10 %
