@@ -47,6 +47,11 @@ def parse_arguments():
         required=True,
         help="Select categorization.")
     parser.add_argument(
+        "--bin",
+        type=str,
+        required=True,
+        help="Select bin to be drawn.")
+    parser.add_argument(
         "--normalize-by-bin-width",
         action="store_true",
         help="Normelize plots by bin width")
@@ -85,13 +90,13 @@ def main(args):
             "et": ["100"],
             "mt": ["100"],
             "tt": ["100"],
-            "em": ["100"]
+            "em": ["100"],
+            "mm": ["100"],
         }
-    else:
-        channel_categories = {
-            #"mt": ["Pt20to25", "Pt25to30", "Pt30to35", "Pt35to40", "Pt40to50", "Pt50to70", "PtGt70"],
-            "mt": ["1", "2", "3", "4", "5", "6", "7"],
-        }
+    channel_categories = {
+            "mt": [args.bin],
+            "mm": ["100"],
+    }
     channel_dict = {
         "ee": "ee",
         "em": "e#mu",
@@ -102,7 +107,12 @@ def main(args):
     }
     if args.gof_variable != None:
         category_dict = {"100": "inclusive"}
-    else:
+    elif args.categories == "inclusive":
+        category_dict = {
+            "1": "inclusive",
+            "100": "cr",
+        }
+    elif args.categories == "pt_binned":
         category_dict = {
             "1": "[20,25]",
             "2": "[25,30]",
@@ -111,7 +121,37 @@ def main(args):
             "5": "[40,50]",
             "6": "[50,70]",
             "7": "[70,]",
+            "100": "cr",
         }
+    elif args.categories == "ptdm_binned":
+        category_dict = {
+             "1": "[20,25], DM0",
+             "2": "[20,25], DM1",
+             "3": "[20,25], DM10",
+             "4": "[25,30], DM0",
+             "5": "[25,30], DM1",
+             "6": "[25,30], DM10",
+             "7": "[30,35], DM0",
+             "8": "[30,35], DM1",
+             "9": "[30,35], DM10",
+            "10": "[35,40], DM0",
+            "11": "[35,40], DM1",
+            "12": "[35,40], DM10",
+            "13": "[40,50], DM0",
+            "14": "[40,50], DM1",
+            "15": "[40,50], DM10",
+            "16": "[50,70], DM0",
+            "17": "[50,70], DM1",
+            "18": "[50,70], DM10",
+            "19": "[70,], DM0",
+            "20": "[70,], DM1",
+            "21": "[70,], DM10",
+            "100": "cr",
+        }
+    else:
+        logger.fatal("Neither gof variable nor valid categorisation specified.")
+        raise Exception
+
     if args.linear == True:
         split_value = 0
     else:
@@ -120,26 +160,31 @@ def main(args):
         else:
             split_value = 101
 
-    split_dict = {c: split_value for c in ["et", "mt", "tt", "em"]}
+    split_dict = {c: split_value for c in ["et", "mt", "tt", "em", "mm"]}
 
-    bkg_processes = [
-        "VVL", "TTL", "ZL", "jetFakes", "EMB"
-    ]
+    bkg_processes = {
+        "mt": ["VVL", "TTL", "ZL", "jetFakes", "EMB"],
+        "mm": ["VV", "TT", "jetFakes", "EMB"]
+    }
     if not args.fake_factor and args.embedding:
-        bkg_processes = [
-            "QCD", "VVJ", "W", "TTJ", "ZJ", "ZL", "EMB"
-        ]
+        bkg_processes = {
+            "mt": ["QCD", "VVJ", "W", "TTJ", "ZJ", "ZL", "EMB"],
+            "mm": ["VV", "W", "TT", "EMB"]
+        }
     if not args.embedding and args.fake_factor:
-        bkg_processes = [
-            "VVT", "VVJ", "TTT", "TTJ", "ZJ", "ZL", "jetFakes", "ZTT"
-        ]
+        bkg_processes = {
+            "mt": ["VVT", "VVJ", "TTT", "TTJ", "ZJ", "ZL", "jetFakes", "ZTT"],
+            "mm": ["VV", "TT", "jetFakes", "ZLL"]
+        }
     if not args.embedding and not args.fake_factor:
-        bkg_processes = [
-            "QCD", "VVT", "VVL", "VVJ", "W", "TTT", "TTL", "TTJ", "ZJ", "ZL", "ZTT"
-        ]
-    all_bkg_processes = [b for b in bkg_processes]
+        bkg_processes = {
+            "mt": ["QCD", "VVT", "VVL", "VVJ", "W", "TTT", "TTL", "TTJ", "ZJ", "ZL", "ZTT"],
+            "mm": ["VV", "W", "TT", "ZLL"]
+        }
+
     legend_bkg_processes = copy.deepcopy(bkg_processes)
-    legend_bkg_processes.reverse()
+    for chn_bkg_processes in legend_bkg_processes.itervalues():
+        chn_bkg_processes.reverse()
 
     if "2016" in args.era:
         era = "Run2016"
@@ -157,14 +202,8 @@ def main(args):
             if "_" in category:
                 tranche = category.split("_")[1]
                 category = category.split("_")[0]
-            bkg_processes = [b for b in all_bkg_processes]
-            legend_bkg_processes = copy.deepcopy(bkg_processes)
-            legend_bkg_processes.reverse()
             # create plot
             width = 600
-            if args.categories == "stxs_stage1":
-                if category == "2" or (category == "1" and tranche != "A"):
-                    width = 1200
             if args.linear == True:
                 plot = dd.Plot(
                     [0.3, [0.3, 0.28]], "ModTDR", r=0.04, l=0.14, width=width)
@@ -173,7 +212,7 @@ def main(args):
                     [0.5, [0.3, 0.28]], "ModTDR", r=0.04, l=0.14, width=width)
 
             # get background histograms
-            for process in bkg_processes:
+            for process in bkg_processes[channel]:
                 plot.add_hist(
                     rootfile.get(era, channel, category, process), process, "bkg")
                 plot.setGraphStyle(
@@ -199,7 +238,7 @@ def main(args):
             ], "total_bkg")
 
             # stack background processes
-            plot.create_stack(bkg_processes, "stack")
+            plot.create_stack(bkg_processes[channel], "stack")
 
             # normalize stacks by bin-width
             if args.normalize_by_bin_width:
@@ -258,9 +297,8 @@ def main(args):
             # create legends
             suffix = ["", "_top"]
             for i in range(2):
-
-                plot.add_legend(width=0.3 if args.categories == "stxs_stage1" and (category=="2" or (category=="1" and tranche!="A")) else 0.6, height=0.15)
-                for process in legend_bkg_processes:
+                plot.add_legend(width=0.6, height=0.2)
+                for process in legend_bkg_processes[channel]:
                     plot.legend(i).add_entry(
                         0, process, styles.legend_label_dict[process.replace("TTL", "TT").replace("VVL", "VV")], 'f')
                 plot.legend(i).add_entry(0, "data_obs", "Data", 'PE')
@@ -302,9 +340,6 @@ def main(args):
                 raise Exception
 
             posChannelCategoryLabelLeft = None
-            if args.categories == "stxs_stage1":
-                if category in ["1", "2"]:
-                    posChannelCategoryLabelLeft = 0.075
             plot.DrawChannelCategoryLabel(
                 "%s, %s" % (channel_dict[channel], category_dict[category]),
                 begin_left=posChannelCategoryLabelLeft)
