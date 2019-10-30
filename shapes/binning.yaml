@@ -1,8 +1,9 @@
+---
 discriminator_variable: &discriminator_variable
-    "m_vis"                                                                                                                                                                                                                                                                
+    "m_vis"
 
 category_binnning: &category_binnning
-    [0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160]
+    [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160]
 
 cat_template: &cat_tmpl
     var: *discriminator_variable
@@ -10,28 +11,94 @@ cat_template: &cat_tmpl
     expression: *discriminator_variable
 
 categories:
-  mt:
-      Pt20to25:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 20) && (pt_2 < 25)"
-      Pt25to30:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 25) && (pt_2 < 30)"
-      Pt30to35:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 30) && (pt_2 < 35)"
-      Pt35to40:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 35) && (pt_2 < 40)"
-      Pt40to50:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 40) && (pt_2 < 50)"
-      Pt50to70:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 50) && (pt_2 < 70)"
-      PtGt70:
-          <<: *cat_tmpl
-          cut: "(pt_2 >= 70)"
+    mt:
+        Pt20to25:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 20) && (pt_2 < 25)"
+        Pt25to30:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 25) && (pt_2 < 30)"
+        Pt30to35:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 30) && (pt_2 < 35)"
+        Pt35to40:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 35) && (pt_2 < 40)"
+        Pt40to50:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 40) && (pt_2 < 50)"
+        Pt50to70:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 50) && (pt_2 < 70)"
+        PtGt70:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 70)"
+        Pt20to25_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 20) && (pt_2 < 25) && (decayMode_2 == 0)"
+        Pt25to30_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 25) && (pt_2 < 30) && (decayMode_2 == 0)"
+        Pt30to35_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 30) && (pt_2 < 35) && (decayMode_2 == 0)"
+        Pt35to40_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 35) && (pt_2 < 40) && (decayMode_2 == 0)"
+        Pt40to50_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 40) && (pt_2 < 50) && (decayMode_2 == 0)"
+        Pt50to70_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 50) && (pt_2 < 70) && (decayMode_2 == 0)"
+        PtGt70_DM0:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 70) && (decayMode_2 == 0)"
+        Pt20to25_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 20) && (pt_2 < 25) && (decayMode_2 == 1)"
+        Pt25to30_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 25) && (pt_2 < 30) && (decayMode_2 == 1)"
+        Pt30to35_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 30) && (pt_2 < 35) && (decayMode_2 == 1)"
+        Pt35to40_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 35) && (pt_2 < 40) && (decayMode_2 == 1)"
+        Pt40to50_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 40) && (pt_2 < 50) && (decayMode_2 == 1)"
+        Pt50to70_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 50) && (pt_2 < 70) && (decayMode_2 == 1)"
+        PtGt70_DM1:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 70) && (decayMode_2 == 1)"
+        Pt20to25_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 20) && (pt_2 < 25) && (decayMode_2 == 10)"
+        Pt25to30_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 25) && (pt_2 < 30) && (decayMode_2 == 10)"
+        Pt30to35_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 30) && (pt_2 < 35) && (decayMode_2 == 10)"
+        Pt35to40_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 35) && (pt_2 < 40) && (decayMode_2 == 10)"
+        Pt40to50_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 40) && (pt_2 < 50) && (decayMode_2 == 10)"
+        Pt50to70_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 50) && (pt_2 < 70) && (decayMode_2 == 10)"
+        PtGt70_DM10:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 70) && (decayMode_2 == 10)"
+        Inclusive:
+            <<: *cat_tmpl
+            cut: "(pt_2 >= 20)"
 
 
 control:

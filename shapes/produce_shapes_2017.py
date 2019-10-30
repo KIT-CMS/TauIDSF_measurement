@@ -13,7 +13,7 @@ from shape_producer.variable import Variable
 from shape_producer.systematic_variations import Nominal, DifferentPipeline, SquareAndRemoveWeight, create_systematic_variations, AddWeight, ReplaceWeight, Relabel
 from shape_producer.process import Process
 from shape_producer.estimation_methods import AddHistogramEstimationMethod
-from shape_producer.channel import MTTauID2017
+from shape_producer.channel import MTTauID2017, MMTauID2017
 
 from itertools import product
 
@@ -99,6 +99,12 @@ def parse_arguments():
         default=False,
         type=str,
         help="Do not produce the systematic variations.")
+    parser.add_argument(
+        "-w",
+        "--working-point",
+        type=str,
+        default="tight",
+        help="Tau ID working point to be measured.")
     return parser.parse_args()
 
 
@@ -112,7 +118,7 @@ def main(args):
 
     # Era selection
     if "2017" in args.era:
-        from shape_producer.estimation_methods_2017 import DataEstimation, ZTTEstimation, ZTTEmbeddedEstimation, ZLEstimation, ZJEstimation, TTLEstimation, TTJEstimation, TTTEstimation, VVLEstimation, VVTEstimation, VVJEstimation, WEstimation, ggHEstimation, qqHEstimation, VHEstimation, WHEstimation, ZHEstimation, ttHEstimation, QCDEstimation_ABCD_TT_ISO2, QCDEstimation_SStoOS_MTETEM, NewFakeEstimationLT, NewFakeEstimationTT, HWWEstimation, ggHWWEstimation, qqHWWEstimation
+        from shape_producer.estimation_methods_2017 import DataEstimation, ZTTEstimation, ZTTEmbeddedEstimation, ZLEstimation, ZJEstimation, TTLEstimation, TTJEstimation, TTTEstimation, VVLEstimation, VVTEstimation, VVJEstimation, WEstimation, ggHEstimation, qqHEstimation, VHEstimation, WHEstimation, ZHEstimation, ttHEstimation, QCDEstimation_ABCD_TT_ISO2, QCDEstimation_SStoOS_MTETEM, NewFakeEstimationLT, NewFakeEstimationTT, HWWEstimation, ggHWWEstimation, qqHWWEstimation, DYJetsToLLEstimation, TTEstimation, VVEstimation
 
         from shape_producer.era import Run2017
         era = Run2017(args.datasets)
@@ -121,12 +127,27 @@ def main(args):
         logger.critical("Era {} is not implemented.".format(args.era))
         raise Exception
 
+    wp_dict = {"vvloose": "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "vloose": "byVLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "loose": "byLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "medium": "byMediumIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "tight": "byTightIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "vtight": "byVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "vvtight": "byVVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
+               }
+
+    logger.info("Produce shapes for the %s working point of the MVA Tau ID", args.working_point)
     # Channels and processes
     # yapf: disable
     directory = args.directory
     mt_friend_directory = args.mt_friend_directory
     ff_friend_directory = args.fake_factor_friend_directory
     mt = MTTauID2017()
+    mt.cuts.add(Cut(wp_dict[args.working_point]+">0.5", "tau_iso"))
+    if args.gof_channel == "mt":
+        mt.cuts.remove("m_t")
+        mt.cuts.remove("dZeta")
+        mt.cuts.remove("absEta")
     mt_processes = {
         "data"  : Process("data_obs", DataEstimation      (era, directory, mt, friend_directory=mt_friend_directory)),
         "ZTT"   : Process("ZTT",      ZTTEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
@@ -142,12 +163,27 @@ def main(args):
         "W"     : Process("W",        WEstimation         (era, directory, mt, friend_directory=mt_friend_directory)),
         }
     # TODO: Include alternative jet fake estimation.
-    mt_processes["FAKES"] = Process("jetFakes", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["EMB", "ZL", "TTL", "VVL"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
+    # mt_processes["FAKES"] = Process("jetFakes", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["EMB", "ZL", "TTL", "VVL"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
+    # mt_processes["FAKES"] = Process("jetFakes", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["ZTT", "ZL", "TTL", "TTT", "VVL", "VVT"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
     mt_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mt,
             [mt_processes[process] for process in ["ZTT", "ZL", "ZJ", "W", "TTT", "TTJ", "TTL", "VVT", "VVJ", "VVL"]],
-            mt_processes["data"], friend_directory=mt_friend_directory, extrapolation_factor=1.00))
+            mt_processes["data"], friend_directory=mt_friend_directory, extrapolation_factor=1.17))
 
     # TODO: Include Z-> mumu control region.
+    mm = MMTauID2017()
+    mm_processes = {
+        "data"  : Process("data_obs", DataEstimation       (era, directory, mm, friend_directory=[])),
+        "ZLL"   : Process("ZLL",      DYJetsToLLEstimation (era, directory, mm, friend_directory=[])),
+        # "EMB"   : Process("EMB",      ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
+        "TT"    : Process("TT",       TTEstimation         (era, directory, mm, friend_directory=[])),
+        "VV"    : Process("VV",       VVEstimation         (era, directory, mm, friend_directory=[])),
+        "W"     : Process("W",        WEstimation          (era, directory, mm, friend_directory=[])),
+        }
+    # mm_processes["FAKES"] = None  TODO: Add fake factors or alternative fake rate estimation here
+    # mm_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
+    #         [mm_processes[process] for process in ["ZTT", "ZL", "ZJ", "W", "TTT", "TTJ", "TTL", "VVT", "VVJ", "VVL"]],
+    #         mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
+
 
 
     # Variables and categories
@@ -158,10 +194,10 @@ def main(args):
     if args.gof_channel == "mt":
         score = Variable(
                 args.gof_variable,
-                VariableBinning(binning["gof"]["mt"][args.gof_variable]["bins"]),
-                expression=binning["gof"]["mt"][args.gof_variable]["expression"])
-        if "cut" in binning["gof"]["mt"][args.gof_variable].keys():
-            cuts=Cuts(Cut(binning["gof"]["mt"][args.gof_variable]["cut"], "binning"))
+                VariableBinning(binning["control"]["mt"][args.gof_variable]["bins"]),
+                expression=binning["control"]["mt"][args.gof_variable]["expression"])
+        if "cut" in binning["control"]["mt"][args.gof_variable].keys():
+            cuts=Cuts(Cut(binning["control"]["mt"][args.gof_variable]["cut"], "binning"))
         else:
             cuts=Cuts()
         mt_categories.append(
@@ -193,6 +229,28 @@ def main(args):
                     variation=Nominal(),
                     mass="125"))
 
+    mm_categories = []
+    if "mm" in args.channels:
+        category = Category(
+                    "control",
+                    mm,
+                    Cuts(),
+                    variable=Variable("m_vis",
+                        ConstantBinning(1, 0, 160),
+                        "m_vis"))
+        mm_categories.append(category)
+
+    if "mm" in args.channels:
+        for process, category in product(mm_processes.values(), mm_categories):
+            systematics.add(
+                    Systematic(
+                        category=category,
+                        process=process,
+                        analysis="smhht",
+                        era=era,
+                        variation=Nominal(),
+                        mass="125"))
+
     # Shapes variations
 
     # TODO: Check if prefiring weights are necessary for tau id sf measurement.
@@ -222,7 +280,7 @@ def main(args):
         "CMS_scale_mc_t_1prong1pizero_Run2017", "tauEsOneProngOnePiZero",
         DifferentPipeline)
     for variation in tau_es_3prong_variations + tau_es_1prong_variations + tau_es_1prong1pizero_variations:
-        for process_nick in ["ZTT", "TTT", "TTL", "VVL", "VVT", "FAKES"
+        for process_nick in ["ZTT", "TTT", "TTL", "VVL", "VVT",# "FAKES"
                             ]:
             if "mt" in [args.gof_channel] + args.channels:
                 systematics.add_systematic_variation(
@@ -239,7 +297,7 @@ def main(args):
         "CMS_scale_t_1prong1pizero_Run2017", "tauEsOneProngOnePiZero",
         DifferentPipeline)
     for variation in tau_es_3prong_variations + tau_es_1prong_variations + tau_es_1prong1pizero_variations:
-        for process_nick in ["ZTT", "TTT", "TTL", "VVT", "VVL", "EMB", "FAKES"
+        for process_nick in ["ZTT", "TTT", "TTL", "VVT", "VVL", "EMB",# "FAKES"
                             ]:
             if "mt" in [args.gof_channel] + args.channels:
                 systematics.add_systematic_variation(
@@ -391,6 +449,14 @@ def main(args):
                     process=mt_processes[process_nick],
                     channel=mt,
                     era=era)
+        for process_nick in ["ZLL", "TT", "VV", "W"]:
+            if "mm" in [args.gof_channel] + args.channels:
+                systematics.add_systematic_variation(
+                        variation=variation,
+                        process=mm_processes[process_nick],
+                        channel=mm,
+                        era=era)
+
     lep_trigger_eff_variations = []
     lep_trigger_eff_variations.append(
         AddWeight("CMS_eff_trigger_emb_mt_Run2017", "trg_mt_eff_weight",
@@ -455,7 +521,7 @@ def main(args):
         "CMS_scale_emb_t_1prong1pizero_Run2017", "tauEsOneProngOnePiZero",
         DifferentPipeline)
     for variation in tau_es_3prong_variations + tau_es_1prong_variations + tau_es_1prong1pizero_variations:
-        for process_nick in ["EMB", "FAKES"]:
+        for process_nick in ["EMB"]:#,  "FAKES"]:
             if "mt" in [args.gof_channel] + args.channels:
                 systematics.add_systematic_variation(
                     variation=variation,
@@ -557,13 +623,13 @@ def main(args):
                                 ch="", shift="_%s" % shift_direction.lower())
                             .replace("_Run2017", "")),
                         "fake_factor"), shift_direction))
-    if "mt" in [args.gof_channel] + args.channels:
-        for variation in fake_factor_variations_mt:
-            systematics.add_systematic_variation(
-                variation=variation,
-                process=mt_processes["FAKES"],
-                channel=mt,
-                era=era)
+    # if "mt" in [args.gof_channel] + args.channels:
+    #     for variation in fake_factor_variations_mt:
+    #         systematics.add_systematic_variation(
+    #             variation=variation,
+    #             process=mt_processes["FAKES"],
+    #             channel=mt,
+    #             era=era)
 
     # Produce histograms
     logger.info("Start producing shapes.")
@@ -573,5 +639,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    setup_logging("{}_produce_shapes.log".format(args.tag), logging.INFO)
+    setup_logging("{}_produce_shapes.log".format(args.tag), logging.DEBUG)
     main(args)
