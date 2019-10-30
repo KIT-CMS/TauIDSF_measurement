@@ -18,6 +18,7 @@ rm -rf output/${ERA}_tauid
 $CMSSW_BASE/bin/slc6_amd64_gcc530/MorphingTauID2017 \
     --base_path=$PWD \
     --input_folder_mt="/" \
+    --input_folder_mm="/" \
     --real_data=true \
     --classic_bbb=false \
     --binomial_bbb=true \
@@ -33,8 +34,8 @@ $CMSSW_BASE/bin/slc6_amd64_gcc530/MorphingTauID2017 \
 # Use Barlow-Beeston-lite approach for bin-by-bin systematics
 THIS_PWD=${PWD}
 echo $THIS_PWD
-cd output/${ERA}_tauid/cmb/125/
-for FILE in *.txt
+cd output/${ERA}_tauid/
+for FILE in htt_mt_*/*.txt
 do
     sed -i '$s/$/\n * autoMCStats 0.0/' $FILE
 done

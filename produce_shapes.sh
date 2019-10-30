@@ -19,7 +19,7 @@ nice -n 15 python TauIDSF_measurement/shapes/produce_shapes_${ERA}.py \
     --channels $CHANNELS \
     --era $ERA \
     --tag $ERA \
-    --num-threads 32
+    --num-threads 25
 
 # Normalize fake-factor shapes to nominal
 # python fake-factor-application/normalize_shifts.py ${ERA}_shapes.root
