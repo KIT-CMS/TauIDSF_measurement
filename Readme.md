@@ -101,6 +101,38 @@ uncorrelated across years
 
 ## Fit
 
-Do Fits per decay mode 
-per tau Pt
-pt_2 binning [20,25,30,35,40,50,70,200]
+The Tau ID SF is measured by fitting the ZTT MC yield to data. It is measured binned in the inclusively or binned in the pT or the reconstructed decay mode of the tau lepton. The binning of the measurement is as follows:
+
+* pt: [20,25,30,35,40,50,70,200]
+* dm(MVA): [0,1,10]
+* dm(DeepTau): [0,1,10,11]
+
+To run the measurement invoke
+```shell
+bash TauIDSF_measurement/measure_TauIDSF.sh $ERA mt
+```
+from the top level directory of the [sm-htt-analysis](https://github.com/KIT-CMS/sm-htt-analysis) repository. This produces the necessary shapes for the inclusive and binned measurements and creates the datacards, workspace and performs the fit for the inclusive or one of the binned measurements specified inside the file. Additionally it produces prefit and postfit shapes and creates plots of these shapes.
+
+# Producing the shapes
+
+ToDo
+
+# Creating the datacard
+
+ToDo
+
+# Creating the workspace
+
+ToDo
+
+# Performing the fit
+
+ToDo
+
+# Prefit and postfit shapes
+
+ToDo
+
+# Plotting
+
+ToDo
