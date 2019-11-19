@@ -123,6 +123,14 @@ def main(args):
             "7": "[70,]",
             "100": "cr",
         }
+    elif args.categories == "dm_binned":
+        category_dict = {
+            "1": "DM0",
+            "2": "DM1",
+            "3": "DM10",
+            "4": "DM11",
+            "100": "cr",
+        }
     elif args.categories == "ptdm_binned":
         category_dict = {
              "1": "[20,25], DM0",
@@ -190,6 +198,8 @@ def main(args):
         era = "Run2016"
     elif "2017" in args.era:
         era = "Run2017"
+    elif "2018" in args.era:
+        era = "Run2018"
     else:
         logger.critical("Era {} is not implemented.".format(args.era))
         raise Exception
@@ -223,6 +233,7 @@ def main(args):
             plot.add_hist(
                 rootfile.get(era, channel, category, "data_obs"), "data_obs")
             total_bkg = rootfile.get(era, channel, category, "TotalBkg")
+            total_bkg.Add(rootfile.get(era, channel, category, "ZTT"))
             plot.add_hist(total_bkg, "total_bkg")
 
             plot.subplot(0).setGraphStyle("data_obs", "e0")
@@ -251,7 +262,7 @@ def main(args):
                 max(2 * plot.subplot(0).get_hist("total_bkg").GetMaximum(),
                     split_dict[channel] * 2))
 
-            plot.subplot(2).setYlims(0.45, 2.05)
+            plot.subplot(2).setYlims(0.5, 1.5)
 
             if args.linear != True:
                 plot.subplot(1).setYlims(0.1, split_dict[channel])
@@ -335,6 +346,8 @@ def main(args):
                 plot.DrawLumi("35.9 fb^{-1} (2016, 13 TeV)")
             elif "2017" in args.era:
                 plot.DrawLumi("41.5 fb^{-1} (2017, 13 TeV)")
+            elif "2018" in args.era:
+                plot.DrawLumi("57.9 fb^{-1} (2018, 13 TeV)")
             else:
                 logger.critical("Era {} is not implemented.".format(args.era))
                 raise Exception
