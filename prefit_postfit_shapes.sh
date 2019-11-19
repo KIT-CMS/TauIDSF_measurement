@@ -1,10 +1,11 @@
 #!/bin/bash
 
 ERA=$1
+CATEGORIES=$2
 
 source utils/setup_cmssw.sh
 
-INPUT=${PWD}/output/${ERA}_tauid
+INPUT=${PWD}/output/${ERA}_tauid_*_${CATEGORIES}*
 for DATACARD in $INPUT/htt_mt*/combined.txt.cmb
 do
     DIR=$(dirname $DATACARD)

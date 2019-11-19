@@ -4,11 +4,12 @@ source utils/setup_cmssw.sh
 source utils/setup_python.sh
 
 ERA=$1
+CATEGORIES=$2
 
 NUM_THREADS=10
 
 # Collect input directories for eras and define output path for workspace
-INPUT=output/${ERA}_tauid/
+INPUT=output/${ERA}_tauid_*_${CATEGORIES}*
 echo "[INFO] Add datacards to workspace from path "${INPUT}"."
 
 # Clean previous workspace

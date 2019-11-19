@@ -22,7 +22,7 @@ then
     JETFAKES_ARG="--fake-factor"
 fi
 
-INPUT=${PWD}/output/${ERA}_tauid
+INPUT=${PWD}/output/${ERA}_tauid_*_${CATEGORIES}*MC
 for DIR in ${INPUT}/htt_mt*
 do
     mkdir -p ${ERA}_plots
@@ -34,5 +34,9 @@ do
             ./TauIDSF_measurement/plot_shapes.py -i $FILE -c $CHANNELS -e $ERA $OPTION --categories $CATEGORIES $JETFAKES_ARG $EMBEDDING_ARG -l --bin $BIN
         done
     done
+    if [ -d "${DIR}/${ERA}_plots/" ]
+    then
+        rm -rf ${DIR}/${ERA}_plots/
+    fi
     mv ${ERA}_plots/ ${DIR}
 done
