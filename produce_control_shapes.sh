@@ -13,7 +13,6 @@ for VAR in $VARIABLES
 do
     nice -n 13 python TauIDSF_measurement/shapes/produce_shapes_${ERA}.py \
         --directory $ARTUS_OUTPUTS \
-        --mt-friend-directory $ARTUS_FRIENDS_MT \
         --fake-factor-friend-directory $ARTUS_FRIENDS_FAKE_FACTOR \
         --datasets $KAPPA_DATABASE \
         --binning $BINNING \
@@ -21,7 +20,7 @@ do
         --gof-variable $VAR \
         --era $ERA \
         --tag ${ERA}_control_${VAR} \
-        --num-threads 1 \
+        --num-threads 20 \
         --skip-systematic-variations true
 done
 
