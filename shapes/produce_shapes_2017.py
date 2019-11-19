@@ -39,21 +39,13 @@ def setup_logging(output_file, level=logging.DEBUG):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description="Produce shapes for 2017 Standard Model analysis.")
+        description="Produce shapes for 2017 Tau ID scale factor measurement.")
 
     parser.add_argument(
         "--directory",
         required=True,
         type=str,
         help="Directory with Artus outputs.")
-    parser.add_argument(
-        "--mt-friend-directory",
-        type=str,
-        default=[],
-        nargs='+',
-        help=
-        "Directories arranged as Artus output and containing a friend tree for mt."
-    )
     parser.add_argument(
         "--fake-factor-friend-directory",
         default=None,
@@ -127,7 +119,8 @@ def main(args):
         logger.critical("Era {} is not implemented.".format(args.era))
         raise Exception
 
-    wp_dict = {"vvloose": "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
+    wp_dict_mva = {
+               "vvloose": "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
                "vloose": "byVLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
                "loose": "byLooseIsolationMVArun2017v2DBoldDMwLT2017_2",
                "medium": "byMediumIsolationMVArun2017v2DBoldDMwLT2017_2",
@@ -135,54 +128,70 @@ def main(args):
                "vtight": "byVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
                "vvtight": "byVVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
                }
+    wp_dict_deeptau = {
+               "vvvloose": "byVVVLooseDeepTau2017v2p1VSjet_2",
+               "vvloose": "byVVLooseDeepTau2017v2p1VSjet_2",
+               "vloose": "byVLooseDeepTau2017v2p1VSjet_2",
+               "loose": "byLooseDeepTau2017v2p1VSjet_2",
+               "medium": "byMediumDeepTau2017v2p1VSjet_2",
+               "tight": "byTightDeepTau2017v2p1VSjet_2",
+               "vtight": "byVTightDeepTau2017v2p1VSjet_2",
+               "vvtight": "byVVTightDeepTau2017v2p1VSjet_2",
+               }
+    wp_dict = wp_dict_deeptau
 
     logger.info("Produce shapes for the %s working point of the MVA Tau ID", args.working_point)
     # Channels and processes
     # yapf: disable
     directory = args.directory
-    mt_friend_directory = args.mt_friend_directory
     ff_friend_directory = args.fake_factor_friend_directory
     mt = MTTauID2017()
     mt.cuts.add(Cut(wp_dict[args.working_point]+">0.5", "tau_iso"))
-    if args.gof_channel == "mt":
-        mt.cuts.remove("m_t")
-        mt.cuts.remove("dZeta")
-        mt.cuts.remove("absEta")
+    # if args.gof_channel == "mt":
+    #     mt.cuts.remove("m_t")
+    #     mt.cuts.remove("dZeta")
+    #     mt.cuts.remove("absEta")
     mt_processes = {
-        "data"  : Process("data_obs", DataEstimation      (era, directory, mt, friend_directory=mt_friend_directory)),
-        "ZTT"   : Process("ZTT",      ZTTEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "EMB"   : Process("EMB",      ZTTEmbeddedEstimation  (era, directory, mt, friend_directory=mt_friend_directory)),
-        "ZJ"    : Process("ZJ",       ZJEstimation        (era, directory, mt, friend_directory=mt_friend_directory)),
-        "ZL"    : Process("ZL",       ZLEstimation        (era, directory, mt, friend_directory=mt_friend_directory)),
-        "TTT"   : Process("TTT",      TTTEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "TTJ"   : Process("TTJ",      TTJEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "TTL"   : Process("TTL",      TTLEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "VVT"   : Process("VVT",      VVTEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "VVJ"   : Process("VVJ",      VVJEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "VVL"   : Process("VVL",      VVLEstimation       (era, directory, mt, friend_directory=mt_friend_directory)),
-        "W"     : Process("W",        WEstimation         (era, directory, mt, friend_directory=mt_friend_directory)),
+        "data"  : Process("data_obs", DataEstimation      (era, directory, mt, friend_directory=[])),
+        "ZTT"   : Process("ZTT",      ZTTEstimation       (era, directory, mt, friend_directory=[])),
+        "EMB"   : Process("EMB",      ZTTEmbeddedEstimation  (era, directory, mt, friend_directory=[])),
+        "ZJ"    : Process("ZJ",       ZJEstimation        (era, directory, mt, friend_directory=[])),
+        "ZL"    : Process("ZL",       ZLEstimation        (era, directory, mt, friend_directory=[])),
+        "TTT"   : Process("TTT",      TTTEstimation       (era, directory, mt, friend_directory=[])),
+        "TTJ"   : Process("TTJ",      TTJEstimation       (era, directory, mt, friend_directory=[])),
+        "TTL"   : Process("TTL",      TTLEstimation       (era, directory, mt, friend_directory=[])),
+        "VVT"   : Process("VVT",      VVTEstimation       (era, directory, mt, friend_directory=[])),
+        "VVJ"   : Process("VVJ",      VVJEstimation       (era, directory, mt, friend_directory=[])),
+        "VVL"   : Process("VVL",      VVLEstimation       (era, directory, mt, friend_directory=[])),
+        "W"     : Process("W",        WEstimation         (era, directory, mt, friend_directory=[])),
         }
     # TODO: Include alternative jet fake estimation.
     # mt_processes["FAKES"] = Process("jetFakes", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["EMB", "ZL", "TTL", "VVL"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
     # mt_processes["FAKES"] = Process("jetFakes", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["ZTT", "ZL", "TTL", "TTT", "VVL", "VVT"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
     mt_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mt,
-            [mt_processes[process] for process in ["ZTT", "ZL", "ZJ", "W", "TTT", "TTJ", "TTL", "VVT", "VVJ", "VVL"]],
-            mt_processes["data"], friend_directory=mt_friend_directory, extrapolation_factor=1.17))
+            [mt_processes[process] for process in ["ZTT", "ZL", "ZJ", "TTT", "TTJ", "TTL", "VVT", "VVJ", "VVL", "W"]],
+            mt_processes["data"], friend_directory=[], extrapolation_factor=1.17))
+    mt_processes["QCDEMB"] = Process("QCDEMB", QCDEstimation_SStoOS_MTETEM(era, directory, mt,
+            [mt_processes[process] for process in ["EMB", "ZL", "ZJ", "TTJ", "TTL", "VVJ", "VVL", "W"]],
+            mt_processes["data"], friend_directory=[], extrapolation_factor=1.17))
 
     # TODO: Include Z-> mumu control region.
     mm = MMTauID2017()
     mm_processes = {
         "data"  : Process("data_obs", DataEstimation       (era, directory, mm, friend_directory=[])),
         "ZLL"   : Process("ZLL",      DYJetsToLLEstimation (era, directory, mm, friend_directory=[])),
-        # "EMB"   : Process("EMB",      ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
+        "EMB"   : Process("EMB",      ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
         "TT"    : Process("TT",       TTEstimation         (era, directory, mm, friend_directory=[])),
         "VV"    : Process("VV",       VVEstimation         (era, directory, mm, friend_directory=[])),
         "W"     : Process("W",        WEstimation          (era, directory, mm, friend_directory=[])),
         }
     # mm_processes["FAKES"] = None  TODO: Add fake factors or alternative fake rate estimation here
-    # mm_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
-    #         [mm_processes[process] for process in ["ZTT", "ZL", "ZJ", "W", "TTT", "TTJ", "TTL", "VVT", "VVJ", "VVL"]],
-    #         mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
+    mm_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
+            [mm_processes[process] for process in ["ZLL", "W", "TT", "VV"]],
+            mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
+    mm_processes["QCDEMB"] = Process("QCDEMB", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
+            [mm_processes[process] for process in ["EMB", "W"]],
+            mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
 
 
 
@@ -562,7 +571,7 @@ def main(args):
     tttautau_process_mt = Process(
         "TTT",
         TTTEstimation(
-            era, directory, mt, friend_directory=mt_friend_directory))
+            era, directory, mt, friend_directory=[]))
     if "mt" in [args.gof_channel] + args.channels:
         for category in mt_categories:
             mt_processes['ZTTpTTTauTauDown'] = Process(
@@ -639,5 +648,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    setup_logging("{}_produce_shapes.log".format(args.tag), logging.DEBUG)
+    setup_logging("{}_produce_shapes.log".format(args.tag), logging.INFO)
     main(args)
