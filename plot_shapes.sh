@@ -10,10 +10,13 @@ JETFAKES=$3
 EMBEDDING=$4
 CHANNELS=${@:5}
 
+SUFFIX="MC"
+
 EMBEDDING_ARG=""
 if [ $EMBEDDING == 1 ]
 then
     EMBEDDING_ARG="--embedding"
+    SUFFIX="EMB"
 fi
 
 JETFAKES_ARG=""
@@ -22,7 +25,7 @@ then
     JETFAKES_ARG="--fake-factor"
 fi
 
-INPUT=${PWD}/output/${ERA}_tauid_*_${CATEGORIES}*MC
+INPUT=${PWD}/output/${ERA}_tauid_vloose_${CATEGORIES}*${SUFFIX}
 for DIR in ${INPUT}/htt_mt*
 do
     mkdir -p ${ERA}_plots

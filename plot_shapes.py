@@ -176,7 +176,7 @@ def main(args):
     }
     if not args.fake_factor and args.embedding:
         bkg_processes = {
-            "mt": ["QCD", "VVJ", "W", "TTJ", "ZJ", "ZL", "EMB"],
+            "mt": ["QCDEMB", "VVJ", "VVL", "W", "TTJ", "TTL", "ZJ", "ZL", "EMB"],
             "mm": ["VV", "W", "TT", "EMB"]
         }
     if not args.embedding and args.fake_factor:
@@ -233,7 +233,10 @@ def main(args):
             plot.add_hist(
                 rootfile.get(era, channel, category, "data_obs"), "data_obs")
             total_bkg = rootfile.get(era, channel, category, "TotalBkg")
-            total_bkg.Add(rootfile.get(era, channel, category, "ZTT"))
+            if args.embedding:
+                total_bkg.Add(rootfile.get(era, channel, category, "EMB"))
+            else:
+                total_bkg.Add(rootfile.get(era, channel, category, "ZTT"))
             plot.add_hist(total_bkg, "total_bkg")
 
             plot.subplot(0).setGraphStyle("data_obs", "e0")
