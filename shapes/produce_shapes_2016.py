@@ -241,7 +241,7 @@ def main(args):
                     mm,
                     Cuts(),
                     variable=Variable("m_vis",
-                        ConstantBinning(1, 0, 160),
+                        ConstantBinning(1, 50, 150),
                         "m_vis"))
         mm_categories.append(category)
 
@@ -251,7 +251,7 @@ def main(args):
                     Systematic(
                         category=category,
                         process=process,
-                        analysis="smhht",
+                        analysis="smhtt",
                         era=era,
                         variation=Nominal(),
                         mass="125"))
