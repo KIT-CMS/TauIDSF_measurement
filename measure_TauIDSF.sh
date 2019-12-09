@@ -16,22 +16,26 @@ done
 # Create shapes of systematics
 ERA=$1
 WPs=${@:2}
-# CHANNELS=${@:3}
 
+mkdir tauid_shapes_29_11_2019
+for WP in $WPs
+do
+    ./TauIDSF_measurement/produce_shapes.sh $ERA $WP mt mm
+    mkdir tauid_shapes_29_11_2019/${ERA}_${WP}/
+    cp ${ERA}_${WP}_shapes.root tauid_shapes_29_11_2019/${ERA}_${WP}/${ERA}_shapes.root
+done
 
-# ./TauIDSF_measurement/produce_shapes.sh $ERA $WP $CHANNELS mm
 for WP in $WPs
 do
     # cp tauid_shapes_emb/${ERA}_${WP}/${ERA}_shapes.root .
-    cp tauid_shapes_19_11_2019/${ERA}_${WP}/${ERA}_shapes.root .
+    cp tauid_shapes_29_11_2019/${ERA}_${WP}/${ERA}_shapes.root .
 
     bash shapes/convert_to_synced_shapes.sh ${ERA} 
 
     # Write datacard
     # TODO: Additionally introduce dm and eta binning for measurement 
-    for CATEGORIES in "pt_binned" "dm_binned" # "inclusive" #  
+    for CATEGORIES in "pt_binned" "dm_binned" "inclusive"
     do
-        # CATEGORIES="pt_binned"  # options: inclusive, pt_binned, dm_binned, ptdm_binned
         JETFAKES=0
         # EMBEDDING=0
         for EMBEDDING in 0 1
@@ -43,7 +47,7 @@ do
 done
 
 JETFAKES=0
-for CATEGORIES in "pt_binned" "dm_binned" # "inclusive" #
+for CATEGORIES in "pt_binned" "dm_binned" "inclusive"
 do
     ./TauIDSF_measurement/produce_workspace.sh ${ERA} $CATEGORIES | tee ${ERA}_produce_workspace_${CATEGORIES}.log
 

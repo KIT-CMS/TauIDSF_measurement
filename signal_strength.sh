@@ -17,16 +17,16 @@ ulimit -s unlimited
 if [ "$ERA" == "2016" ]
 then
     RANGE="0.85,1.05"
-elif [ "$ERA" == "2017" ] || [ "$ERA" == "2018" ]
+elif [ "$ERA" == "2017" ] 
 then
     RANGE="0.96,1.02"
+elif [ "$ERA" == "2018" ]
+then
+    RANGE="0.98,1.02"
 else
-    echo "[ERROR] Given era $ERA does not exist. Aborting..."
-    exit
+    echo "[FATAL] Given era $ERA does not exist. Aborting..."
+    exit 1
 fi
-
-echo $RANGE
-
 
 if [ "$FITKIND" == "robustHesse" ]
 then

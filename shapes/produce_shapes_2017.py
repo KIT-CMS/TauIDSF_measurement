@@ -75,7 +75,7 @@ def parse_arguments():
         help="Variable for goodness of fit shapes.")
     parser.add_argument(
         "--num-threads",
-        default=32,
+        default=8,
         type=int,
         help="Number of threads to be used.")
     parser.add_argument(
@@ -137,6 +137,7 @@ def main(args):
                "tight": "byTightDeepTau2017v2p1VSjet_2",
                "vtight": "byVTightDeepTau2017v2p1VSjet_2",
                "vvtight": "byVVTightDeepTau2017v2p1VSjet_2",
+               "mm": "0<1",
                }
     wp_dict = wp_dict_deeptau
 
@@ -251,14 +252,15 @@ def main(args):
 
     if "mm" in args.channels:
         for process, category in product(mm_processes.values(), mm_categories):
-            systematics.add(
-                    Systematic(
-                        category=category,
-                        process=process,
-                        analysis="smhtt",
-                        era=era,
-                        variation=Nominal(),
-                        mass="125"))
+            if process.name == "EMB":
+                systematics.add(
+                        Systematic(
+                            category=category,
+                            process=process,
+                            analysis="smhtt",
+                            era=era,
+                            variation=Nominal(),
+                            mass="125"))
 
     # Shapes variations
 
@@ -648,5 +650,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    setup_logging("{}_produce_shapes.log".format(args.tag), logging.INFO)
+    setup_logging("{}_produce_shapes.log".format(args.tag), logging.DEBUG)
     main(args)

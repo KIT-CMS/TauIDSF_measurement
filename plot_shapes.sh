@@ -25,7 +25,7 @@ then
     JETFAKES_ARG="--fake-factor"
 fi
 
-INPUT=${PWD}/output/${ERA}_tauid_vloose_${CATEGORIES}*${SUFFIX}
+INPUT=${PWD}/output/${ERA}_tauid_*_${CATEGORIES}*${SUFFIX}
 for DIR in ${INPUT}/htt_mt*
 do
     mkdir -p ${ERA}_plots

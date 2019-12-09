@@ -18,9 +18,10 @@ nice -n 15 python TauIDSF_measurement/shapes/produce_shapes_${ERA}.py \
     --binning $BINNING \
     --channels $CHANNELS \
     --era $ERA \
-    --tag ${ERA}_$WP \
+    --tag ${ERA}_test \
     --working-point $WP \
-    --num-threads 30
+    --num-threads 1 \
+    --skip-systematic-variations true
 
 # Normalize fake-factor shapes to nominal
 # python fake-factor-application/normalize_shifts.py ${ERA}_shapes.root
