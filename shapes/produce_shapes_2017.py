@@ -181,7 +181,7 @@ def main(args):
     mm_processes = {
         "data"  : Process("data_obs", DataEstimation       (era, directory, mm, friend_directory=[])),
         "ZLL"   : Process("ZLL",      DYJetsToLLEstimation (era, directory, mm, friend_directory=[])),
-        "EMB"   : Process("EMB",      ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
+        "MMEMB" : Process("MMEMB",    ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
         "TT"    : Process("TT",       TTEstimation         (era, directory, mm, friend_directory=[])),
         "VV"    : Process("VV",       VVEstimation         (era, directory, mm, friend_directory=[])),
         "W"     : Process("W",        WEstimation          (era, directory, mm, friend_directory=[])),
@@ -191,7 +191,7 @@ def main(args):
             [mm_processes[process] for process in ["ZLL", "W", "TT", "VV"]],
             mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
     mm_processes["QCDEMB"] = Process("QCDEMB", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
-            [mm_processes[process] for process in ["EMB", "W"]],
+            [mm_processes[process] for process in ["MMEMB", "W"]],
             mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
 
 
@@ -252,15 +252,14 @@ def main(args):
 
     if "mm" in args.channels:
         for process, category in product(mm_processes.values(), mm_categories):
-            if process.name == "EMB":
-                systematics.add(
-                        Systematic(
-                            category=category,
-                            process=process,
-                            analysis="smhtt",
-                            era=era,
-                            variation=Nominal(),
-                            mass="125"))
+            systematics.add(
+                    Systematic(
+                        category=category,
+                        process=process,
+                        analysis="smhtt",
+                        era=era,
+                        variation=Nominal(),
+                        mass="125"))
 
     # Shapes variations
 
@@ -483,6 +482,13 @@ def main(args):
                     process=mt_processes[process_nick],
                     channel=mt,
                     era=era)
+        for process_nick in ["MMEMB"]:
+            if "mm" in [args.gof_channel] + args.channels:
+                systematics.add_systematic_variation(
+                    variation=variation,
+                    process=mm_processes[process_nick],
+                    channel=mm,
+                    era=era)
 
 
     # b tagging
@@ -650,5 +656,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    setup_logging("{}_produce_shapes.log".format(args.tag), logging.DEBUG)
+    setup_logging("{}_produce_shapes.log".format(args.tag), logging.INFO)
     main(args)

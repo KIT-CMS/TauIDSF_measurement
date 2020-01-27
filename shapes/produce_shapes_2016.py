@@ -125,6 +125,7 @@ def main(args):
                "tight": "byTightIsolationMVArun2017v2DBoldDMwLT2017_2",
                "vtight": "byVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
                "vvtight": "byVVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "mm": "0<1",
                }
     wp_dict_deeptau = {
                "vvvloose": "byVVVLooseDeepTau2017v2p1VSjet_2",
@@ -135,6 +136,7 @@ def main(args):
                "tight": "byTightDeepTau2017v2p1VSjet_2",
                "vtight": "byVTightDeepTau2017v2p1VSjet_2",
                "vvtight": "byVVTightDeepTau2017v2p1VSjet_2",
+               "mm": "0<1",
                }
     wp_dict = wp_dict_deeptau
 
@@ -173,7 +175,7 @@ def main(args):
     mm_processes = {
         "data"  : Process("data_obs", DataEstimation       (era, directory, mm, friend_directory=[])),
         "ZLL"   : Process("ZLL",      DYJetsToLLEstimation (era, directory, mm, friend_directory=[])),
-        "EMB"   : Process("EMB",      ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
+        "MMEMB" : Process("MMEMB",    ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
         "TT"    : Process("TT",       TTEstimation         (era, directory, mm, friend_directory=[])),
         "VV"    : Process("VV",       VVEstimation         (era, directory, mm, friend_directory=[])),
         "W"     : Process("W",        WEstimation          (era, directory, mm, friend_directory=[])),
@@ -183,14 +185,12 @@ def main(args):
             [mm_processes[process] for process in ["ZLL", "W", "TT", "VV"]],
             mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
     mm_processes["QCDEMB"] = Process("QCDEMB", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
-            [mm_processes[process] for process in ["EMB", "W"]],
+            [mm_processes[process] for process in ["MMEMB", "W"]],
             mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
 
     # Stage 0 and 1.1 signals for ggH & qqH
     # mt_processes["FAKES"] = Process("jetFakes", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["ZTT", "TTT", "VVT", "ZL", "TTL", "VVL"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
     # mt_processes["FAKESEMB"] = Process("jetFakesEMB", NewFakeEstimationLT(era, directory, mt, [mt_processes[process] for process in ["EMB", "ZL", "TTL", "VVL"]], mt_processes["data"], friend_directory=mt_friend_directory+[ff_friend_directory]))
-    mt_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mt, [mt_processes[process] for process in ["ZTT", "ZJ", "ZL", "W", "TTT", "TTL", "TTJ", "VVT", "VVL", "VVJ"]], mt_processes["data"], extrapolation_factor=1.17))
-    mt_processes["QCDEMB"] = Process("QCDEMB", QCDEstimation_SStoOS_MTETEM(era, directory, mt, [mt_processes[process] for process in ["EMB", "ZJ", "ZL", "W", "TTL", "TTJ", "VVL", "VVJ"]], mt_processes["data"], extrapolation_factor=1.17))
     # Variables and categories
     binning = yaml.load(open(args.binning))
 
@@ -457,6 +457,13 @@ def main(args):
                     variation=variation,
                     process=mt_processes[process_nick],
                     channel=mt,
+                    era=era)
+        for process_nick in ["MMEMB"]:
+            if "mm" in [args.gof_channel] + args.channels:
+                systematics.add_systematic_variation(
+                    variation=variation,
+                    process=mm_processes[process_nick],
+                    channel=mm,
                     era=era)
 
 

@@ -127,6 +127,7 @@ def main(args):
                "tight": "byTightIsolationMVArun2017v2DBoldDMwLT2017_2",
                "vtight": "byVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
                "vvtight": "byVVTightIsolationMVArun2017v2DBoldDMwLT2017_2",
+               "mm": "0<1",
                }
     wp_dict_deeptau = {
                "vvvloose": "byVVVLooseDeepTau2017v2p1VSjet_2",
@@ -137,6 +138,7 @@ def main(args):
                "tight": "byTightDeepTau2017v2p1VSjet_2",
                "vtight": "byVTightDeepTau2017v2p1VSjet_2",
                "vvtight": "byVVTightDeepTau2017v2p1VSjet_2",
+               "mm": "0<1",
                }
     wp_dict = wp_dict_deeptau
 
@@ -183,7 +185,7 @@ def main(args):
     mm_processes = {
         "data"  : Process("data_obs", DataEstimation       (era, directory, mm, friend_directory=[])),
         "ZLL"   : Process("ZLL",      DYJetsToLLEstimation (era, directory, mm, friend_directory=[])),
-    #     "EMB"   : Process("EMB",      ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
+        "MMEMB" : Process("MMEMB",    ZTTEmbeddedEstimation(era, directory, mm, friend_directory=[])),
         "TT"    : Process("TT",       TTEstimation         (era, directory, mm, friend_directory=[])),
         "VV"    : Process("VV",       VVEstimation         (era, directory, mm, friend_directory=[])),
         "W"     : Process("W",        WEstimation          (era, directory, mm, friend_directory=[])),
@@ -192,9 +194,9 @@ def main(args):
     mm_processes["QCD"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
             [mm_processes[process] for process in ["ZLL", "W", "TT", "VV"]],
             mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
-    # mm_processes["QCDEMB"] = Process("QCD", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
-    #         [mm_processes[process] for process in ["EMB", "W"]],
-    #         mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
+    mm_processes["QCDEMB"] = Process("QCDEMB", QCDEstimation_SStoOS_MTETEM(era, directory, mm,
+            [mm_processes[process] for process in ["MMEMB", "W"]],
+            mm_processes["data"], friend_directory=[], extrapolation_factor=1.17))
 
 
 
@@ -466,6 +468,13 @@ def main(args):
                     process=mt_processes[process_nick],
                     channel=mt,
                     era=era)
+        for process_nick in ["MMEMB"]:
+            if "mm" in [args.gof_channel] + args.channels:
+                systematics.add_systematic_variation(
+                    variation=variation,
+                    process=mm_processes[process_nick],
+                    channel=mm,
+                    era=era)
 
 
     # b tagging
@@ -632,5 +641,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    setup_logging("{}_produce_shapes.log".format(args.tag), logging.INFO)
+    setup_logging("{}_produce_shapes.log".format(args.tag), logging.DEBUG)
     main(args)
